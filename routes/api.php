@@ -27,3 +27,6 @@ Route::get('testing', function () {
 	return $testing;
 });
 
+Route::apiResource('phonebook', 'UserspbController' );
+
+

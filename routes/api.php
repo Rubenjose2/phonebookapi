@@ -29,4 +29,9 @@ Route::get('testing', function () {
 
 Route::apiResource('phonebook', 'UserspbController' );
 
+Route::fallback(function() {
+	return response()->json(
+		[ 'message'=>'Page not found. If error persist please contact support@phonebook.test']
+	);
+});
 

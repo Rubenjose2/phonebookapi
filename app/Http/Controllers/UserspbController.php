@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Resources\apiReturn;
 use App\Userspb;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+
 
 class UserspbController extends Controller
 {
@@ -28,13 +30,13 @@ class UserspbController extends Controller
 	 */
 	public function store(Request $request) {
 //		Validate de Inputs
-//		$request->validate([
-//			'fullName'		=>'required',
-//			'address' 		=> 'required',
-//			'phoneNumber'	=> 'required',
-//			'email' 		=> 'required',
-//		]);
-//
+
+		$validator = Validator::make($request->all(), $this->rules());
+
+		if($validator->fails()){
+			return new apiReturn([$validator->errors()]);
+		}
+
 		try {
 			$newPhoneRecord = Userspb::create($request->all());
 			return new apiReturn($newPhoneRecord);
@@ -64,5 +66,15 @@ class UserspbController extends Controller
 
 	public function destroy(Request $request) {
 
+	}
+
+	private function rules() {
+		return [
+			'fullName'		=>'required',
+			'address' 		=> 'required',
+			'phoneNumber'	=> 'required',
+			'email' 		=> 'required',
+			'status'		=> 'required'
+		];
 	}
 }

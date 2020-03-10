@@ -1,0 +1,81 @@
+version: '3'
+# If you need to do changes in the server, like change the domain; you need to check the nginx/default.conf file.
+
+services:
+
+  mysql:
+    image: mysql:5.7.23
+    container_name: mysql-phonebook
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: phonebook_container
+      MYSQL_USER: root
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: bestjobever
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+
+    volumes:
+      - mysqldata:/var/lib/mysql/
+    networks:
+      - phonebook
+
+  # Setup of the Laravel App and make it run on port 9000
+  laravelapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: php-laravel-phonebook
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./storage/app/public/:/var/www/public/storage
+    environment:
+      - "DB_CONNECTION=mysql"
+      - "DB_HOST=mysql"
+      - "DB_PORT=3306"
+      - "DB_DATABASE=phonebook_container"
+      - "DB_USERNAME=root"
+      - "DB_PASSWORD=bestjobever"
+    ports:
+      - "9000:9000"
+    networks:
+      - phonebook
+    depends_on:
+      - mysql
+    # Running the Migration and get ready to serve
+    command: >
+      bash -c "php-fpm"
+
+
+  # Setting up the Nginx server.
+  nginxserver:
+    image: nginx:stable
+    container_name: nginx-laravel-phonebook
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - ./:/var/www
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - mysql
+      - laravelapp
+    networks:
+      - phonebook
+
+
+# Setting up the Network
+networks:
+  phonebook:
+    driver: bridge
+
+#Volumes
+volumes:
+  mysqldata:
+    driver: local

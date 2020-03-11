@@ -12,6 +12,9 @@ class PhoneBookLogController extends Controller
 {
     //
 
+	/**
+	 * @return apiReturn
+	 */
 	public function index(){
 
 		$phoneBookList =
@@ -26,6 +29,10 @@ class PhoneBookLogController extends Controller
 		return new apiReturn($phoneBookListN);
 	}
 
+	/**
+	 * @param Request $request
+	 * @return apiReturn|\Illuminate\Http\JsonResponse
+	 */
 	public function store(Request $request) {
 
 		$validator = Validator::make($request->all(), $this->rules());
@@ -50,7 +57,9 @@ class PhoneBookLogController extends Controller
 
 	}
 
-
+	/**
+	 * @return array
+	 */
 	private function rules() {
 		return [
 			'idFrom'		=> 'required',
@@ -60,6 +69,10 @@ class PhoneBookLogController extends Controller
 		];
 	}
 
+	/**
+	 * @param $request
+	 * @return PhoneBookLog
+	 */
 	private function saveInvert($request){
 
 		$invertRecord = new PhoneBookLog;
@@ -81,9 +94,12 @@ class PhoneBookLogController extends Controller
 		return $invertRecord;
 	}
 
+	/**
+	 * @param $results
+	 * @return array
+	 */
 	private function normalizeOutPut($results) {
 		$responses = array();
-
 
 		foreach ($results as $result) {
 			$response['id']				= $result->id;
@@ -96,7 +112,6 @@ class PhoneBookLogController extends Controller
 
 			$responses[] = $response;
 		}
-
 
 		return $responses;
 	}

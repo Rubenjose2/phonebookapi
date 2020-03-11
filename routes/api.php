@@ -27,7 +27,8 @@ Route::get('testing', function () {
 	return $testing;
 });
 
-Route::apiResource('phonebook', 'UserspbController' );
+Route::apiResource('contact', 'UserspbController' );
+Route::apiResource('phonebooklog','PhoneBookLogController');
 
 Route::fallback(function() {
 	return response()->json(

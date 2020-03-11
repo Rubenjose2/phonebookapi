@@ -27,7 +27,7 @@ class UserspbController extends Controller
 	/**
 	 * Function to store a new user
 	 * @param Request $request
-	 * @return apiReturn
+	 * @return \Illuminate\Http\JsonResponse
 	 */
 	public function store(Request $request) {
 //		Validate de Inputs
@@ -35,51 +35,90 @@ class UserspbController extends Controller
 		$validator = Validator::make($request->all(), $this->rules());
 
 		if($validator->fails()){
-			return new apiReturn([$validator->errors()]);
+			return response()->json([
+				'error'		=> 'Validation Errors',
+				'details' 	=> $validator->errors()]);
 		}
 
 		try {
 			$newPhoneRecord = Userspb::create($request->all());
 			return new apiReturn($newPhoneRecord);
-		}catch (\Exception $ex) {
-			return new apiReturn([$ex->getMessage()]);
+		}catch (\Exception $e) {
+			return response()->json([
+				'error'		=> 'Error has occurs saving the log',
+				'details'	=> $e->getMessage()
+			]);
 		}
 
 	}
 
 	/**
 	 * Function to pull one record base on the id
-	 * @param $phonebook
-	 * @return apiReturn
+	 * @param $contact
+	 * @return \Illuminate\Http\JsonResponse
 	 */
 
-	public function show($phonebook) {
+	public function show($contact) {
 
-		return new apiReturn(
-			Userspb::where('id',$phonebook)->get()
-		);
-
-	}
-
-	public function update(Request $request, $phonebook) {
-
-		$contactNumber = Userspb::findOrFail($phonebook);
-		$contactNumber->update($request->all());
+		try{
+			$contactNumber = Userspb::findOrFail($contact);
+		}catch (\Exception $e) {
+			return response()->json([
+				'error' => 'Record not found',
+				'description' 	=> $e->getMessage()
+			]);
+		}
 		return new apiReturn($contactNumber);
 
 	}
 
-	public function destroy($phonebook) {
-		$contactNumber = Userspb::findOrFail($phonebook);
-		$contactNumber->delete();
+	/**
+	 * @param Request $request
+	 * @param $contact
+	 * @return apiReturn|\Illuminate\Http\JsonResponse
+	 */
+	public function update(Request $request, $contact) {
+
+		try{
+			$contactNumber = Userspb::findOrFail($contact);
+			$contactNumber->update($request->all());
+			return new apiReturn($contactNumber);
+		}catch(\Exception $e) {
+			return response()->json([
+				'error' => 'Record not found',
+				'description' 	=> $e->getMessage()
+			]);
+		}
 	}
 
+	/**
+	 * @param $contact
+	 * @return apiReturn|\Illuminate\Http\JsonResponse
+	 */
+	public function destroy($contact) {
+
+		try {
+			$contactNumber = Userspb::findOrFail($contact);
+			$contactNumber->delete();
+			return new apiReturn(['message'=>'record deleted']);
+		}catch(\Exception $e){
+			return response()->json([
+				'error' => 'Record not found',
+				'description' 	=> $e->getMessage()
+			]);
+		}
+
+	}
+
+	/**
+	 * @return array
+	 */
 	private function rules() {
 		return [
 			'fullName'		=>'required',
 			'address' 		=> 'required',
 			'phoneNumber'	=> 'required',
-			'email' 		=> 'required',
+			'email' 		=> 'required | email:rfc,dns',
 			'status'		=> 'required'
 		];
 	}

@@ -16,4 +16,12 @@ class Userspb extends Model
 		'email',
 		'status'
 	];
+
+    public function inboundCall() {
+    	return $this->hasOne(`App\PhoneBookLog`,'id','idTo');
+	}
+
+	public function outBoundCall() {
+    	return $this->hasOne(`App\PhoneBookLog`,'id','idFrom');
+	}
 }

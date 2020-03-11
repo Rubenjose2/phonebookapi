@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\apiReturn;
+use App\User;
 use App\Userspb;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -60,12 +61,17 @@ class UserspbController extends Controller
 
 	}
 
-	public function update(Request $request) {
+	public function update(Request $request, $phonebook) {
+
+		$contactNumber = Userspb::findOrFail($phonebook);
+		$contactNumber->update($request->all());
+		return new apiReturn($contactNumber);
 
 	}
 
-	public function destroy(Request $request) {
-
+	public function destroy($phonebook) {
+		$contactNumber = Userspb::findOrFail($phonebook);
+		$contactNumber->delete();
 	}
 
 	private function rules() {

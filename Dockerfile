@@ -39,7 +39,7 @@ WORKDIR /app
 COPY . /app
 
 #Running composer
-#RUN composer install
+RUN composer install --quiet
 
 #Ready to serve
 EXPOSE 9000
